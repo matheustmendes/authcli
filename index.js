@@ -3,7 +3,8 @@
 /*
 
 !TODO:
-? procurar formas de fazer validação dos dados antes de criar a arquitetura dos arquivos
+? criar arquitetura dos arquivos
+? dar um jeito de percorrer todo diretorio e buscar o email pra ver se já existe
 ? estudar a melhor forma de leitura e autenticação simples do usuario
 ? começar a trabalhar a navegação de cada parte
 ?(*seria melhor trabalhar com módulos? criava meio que componentes do codigo em pastas acho que ficaria melhor (estudar isso)*)
@@ -13,6 +14,7 @@
 
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+import fs from 'fs';
 
 function initialOperation() {
   inquirer.prompt([
@@ -117,11 +119,35 @@ function registerAccount() {
 
     },
   ]).then((response) => {
-    console.log(response.name, response.login, response.email, response.password);
+    // console.log(response.name, response.login, response.email, response.password);
+
+    createArchive(response.login, response.name, response.email, response.password);
   }).catch((error) => {
     console.error(error);
     process.exit();
   });
+}
+
+// function pra criar o arquivo?
+
+function createArchive(login, username, email, password) {
+  const userLogin = login;
+  const userName = username;
+  const userEmail = email;
+  const userPassword = password;
+
+  if (!fs.existsSync('accounts')) {
+    fs.mkdirSync('accounts');
+  }
+
+  if (fs.existsSync(`accounts/${userLogin}.json`)) {
+    console.log(chalk.redBright('This login is already registered, try another.'));
+    process.exit();
+  }
+
+  fs.writeFileSync(`accounts/${userLogin}.json`, `{\n"name": "${userName}",\n"login": "${userLogin}",\n"email": "${userEmail}",\n"password": "${userPassword}"\n}`);
+
+  console.log(chalk.greenBright('Account created. Welcome!'));
 }
 
 // login
